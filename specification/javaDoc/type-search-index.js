@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"sk_projekat1.exceptions","l":"CustomException"},{"p":"sk_projekat1","l":"Storage"},{"p":"sk_projekat1","l":"StorageArguments"},{"p":"sk_projekat1","l":"StorageManager"},{"p":"sk_projekat1.enums","l":"TypeFilter"},{"p":"sk_projekat1.enums","l":"TypeSort"}];updateSearchResults();
