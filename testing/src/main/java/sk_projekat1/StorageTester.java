@@ -16,7 +16,7 @@ public class StorageTester {
 
         try {
             Class.forName("sk_projekat1.ImplementationLocal");
-           // Class.forName("sk_projekat1.ImplementationDrive");
+            // Class.forName("sk_projekat1.ImplementationDrive");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }

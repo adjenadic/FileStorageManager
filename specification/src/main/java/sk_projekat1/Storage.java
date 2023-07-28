@@ -6,20 +6,20 @@ public interface Storage {
     /**
      * Checks if the storage exists.
      *
-     * @param absolutePath  Storage absolute path
-     * @return              true or false
-    */
+     * @param absolutePath Storage absolute path
+     * @return true or false
+     */
     boolean setPath(String absolutePath);
 
     /**
      * Creates an empty root folder called Storage.
      *
-     * @param storageName                   Storage name
-     * @param storageSize                   Storage size in bytes
-     * @param storagePath                   Storage absolute path
-     * @param storageRestrictedExtensions   Storage restricted file extensions. If you have multiple extensions, split them with the ',' character
-     * @param maxFilesInFolder              Max number of files in one folder
-     * @return                              true or false
+     * @param storageName                 Storage name
+     * @param storageSize                 Storage size in bytes
+     * @param storagePath                 Storage absolute path
+     * @param storageRestrictedExtensions Storage restricted file extensions. If you have multiple extensions, split them with the ',' character
+     * @param maxFilesInFolder            Max number of files in one folder
+     * @return true or false
      */
     boolean createStorage(String storageName, String storagePath, int storageSize, String storageRestrictedExtensions, int maxFilesInFolder);
 
@@ -27,7 +27,7 @@ public interface Storage {
      * Creates an empty root folder called 'Default Storage' with default credentials.
      * Default credentials are some constants that are predetermined.
      *
-     * @return                  true or false
+     * @return true or false
      */
     boolean createDefaultStorage();
 
@@ -36,44 +36,44 @@ public interface Storage {
     /**
      * Creates an empty folder.
      *
-     * @param folderName        Folder name
-     * @param folderPath        Folder path (Relative path from storage)
-     * @return                  true or false
+     * @param folderName Folder name
+     * @param folderPath Folder path (Relative path from storage)
+     * @return true or false
      */
     boolean createFolder(String folderName, String folderPath);
 
     /**
      * Creates an empty file.
      *
-     * @param fileName          File name
-     * @param filePath          File path (Relative path from storage)
-     * @return                  true or false
+     * @param fileName File name
+     * @param filePath File path (Relative path from storage)
+     * @return true or false
      */
     boolean createFile(String fileName, String filePath);
 
     /**
      * Moves a file to a given new folder.
      *
-     * @param oldFilePath       Old File path (Relative path from storage)
-     * @param newFilePath       New File path (Relative path from storage)
-     * @return                  true or false
+     * @param oldFilePath Old File path (Relative path from storage)
+     * @param newFilePath New File path (Relative path from storage)
+     * @return true or false
      */
     boolean moveFile(String oldFilePath, String newFilePath);
 
     /**
      * Renames an existing file object.
      *
-     * @param foNewName         Folder or File new name
-     * @param foPath            Folder or File path (Relative path from storage)
-     * @return                  true or false
+     * @param foNewName Folder or File new name
+     * @param foPath    Folder or File path (Relative path from storage)
+     * @return true or false
      */
     boolean renameFileObject(String foNewName, String foPath);
 
     /**
      * Deletes an existing file object.
      *
-     * @param foPath            File object path (relative path from storage)
-     * @return                  true or false
+     * @param foPath File object path (relative path from storage)
+     * @return true or false
      */
     boolean deleteFileObject(String foPath);
 
@@ -82,7 +82,7 @@ public interface Storage {
      *
      * @param importLocalPath   Local disk file path
      * @param importStoragePath Storage file path (Relative path from storage)
-     * @return                  true or false
+     * @return true or false
      */
     boolean importFileObject(String[] importLocalPath, String importStoragePath);
 
@@ -91,7 +91,7 @@ public interface Storage {
      *
      * @param exportStoragePath Storage file path (Relative path from storage)
      * @param exportLocalPath   Local disk file path
-     * @return                  true or false
+     * @return true or false
      */
     boolean exportFileObject(String exportStoragePath, String exportLocalPath);
 
@@ -149,16 +149,16 @@ public interface Storage {
     /**
      * Checks if file(s) with the specified name(s) is(/are) in a folder.
      *
-     * @param folderPath    Folder path (relative path from storage)
-     * @param fileName      Requested name/names files
-     * @return              true or false
+     * @param folderPath Folder path (relative path from storage)
+     * @param fileName   Requested name/names files
+     * @return true or false
      */
     boolean existsInFolder(String folderPath, String[] fileName);
 
     /**
      * Lists a folder which includes a file with the specified name.
      *
-     * @param fileName      File path (Relative path from storage)
+     * @param fileName File path (Relative path from storage)
      */
     String findFileFolder(String fileName);
 

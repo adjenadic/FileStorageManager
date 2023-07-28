@@ -28,34 +28,25 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ImplementationDrive implements Storage {
+    private static final String APPLICATION_NAME = "Google Drive API Java Quickstart";
+    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
+    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+    private static final List<String> SCOPES =
+            Arrays.asList(DriveScopes.DRIVE, DriveScopes.DRIVE_APPDATA, DriveScopes.DRIVE_FILE, DriveScopes.DRIVE_METADATA, DriveScopes.DRIVE_SCRIPTS);
+    private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+
+    static {
+        try {
+            StorageManager.registerStorage(new ImplementationDrive());
+        } catch (GeneralSecurityException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-
     public Drive service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
             .setApplicationName(APPLICATION_NAME)
             .build();
-
-    /**
-     * Application name.
-     */
-    private static final String APPLICATION_NAME = "Google Drive API Java Quickstart";
-    /**
-     * Global instance of the JSON factory.
-     */
-    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
-    /**
-     * Directory to store authorization tokens for this application.
-     */
-    private static final String TOKENS_DIRECTORY_PATH = "tokens";
-
-    /**
-     * Global instance of the scopes required by this quickstart.
-     * If modifying these scopes, delete your previously saved tokens/ folder.
-     */
-    private static final List<String> SCOPES =
-            Arrays.asList(DriveScopes.DRIVE, DriveScopes.DRIVE_APPDATA, DriveScopes.DRIVE_FILE, DriveScopes.DRIVE_METADATA, DriveScopes.DRIVE_SCRIPTS);
-        private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
-    //private static final String CREDENTIALS_FILE_PATH = "/andrej.json";
 
     public ImplementationDrive() throws GeneralSecurityException, IOException {
     }
@@ -69,7 +60,6 @@ public class ImplementationDrive implements Storage {
      */
     private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT)
             throws IOException {
-        // Load client secrets.
         InputStream in = ImplementationDrive.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
         if (in == null) {
             throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
@@ -77,26 +67,14 @@ public class ImplementationDrive implements Storage {
         GoogleClientSecrets clientSecrets =
                 GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
 
-        // Build flow and trigger user authorization request.
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
                 .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
                 .setAccessType("offline")
                 .build();
         LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
-        // Returns an authorized Credential object.
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user1");
     }
-
-    static {
-        try {
-            StorageManager.registerStorage(new ImplementationDrive());
-        } catch (GeneralSecurityException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /*--------------------------------------------------------------------------------------*/
 
     @Override
     public boolean setPath(String storageId) {
@@ -123,7 +101,7 @@ public class ImplementationDrive implements Storage {
             try {
                 List<String> configAtributes = new ArrayList<>();
                 java.io.File configFile = new java.io.File("D:/googleDriveFiles", storage.getName() + "_CONFIGURATION.txt");
-                //java.io.File configFile = new java.io.File("/Users/adjenadic/googleDriveFiles", storage.getName() + "_CONFIGURATION.txt");
+//                java.io.File configFile = new java.io.File("/Users/adjenadic/googleDriveFiles", storage.getName() + "_CONFIGURATION.txt");
                 Scanner myReader = new Scanner(configFile);
 
                 while (myReader.hasNextLine()) {
@@ -150,7 +128,6 @@ public class ImplementationDrive implements Storage {
 
     @Override
     public boolean createStorage(String storageName, String storagePath, int storageSize, String storageRestrictedExtensions, int maxFilesInStorage) {
-        //inicijalizacija
         StorageArguments.name = storageName;
         StorageArguments.path = storagePath;
         StorageArguments.totalSpace = storageSize;
@@ -160,7 +137,6 @@ public class ImplementationDrive implements Storage {
         StorageArguments.restrictedExtensions.addAll(Arrays.asList(resExe));
         StorageArguments.maxFilesInStorage = maxFilesInStorage;
 
-        // Kreiranje storage
         File storageMetaData = new File();
         storageMetaData.setName(storageName);
         storageMetaData.setMimeType("application/vnd.google-apps.folder");
@@ -177,9 +153,8 @@ public class ImplementationDrive implements Storage {
             throw new RuntimeException(e);
         }
 
-        // Kreiranje lokalnog file
         java.io.File localFile = new java.io.File("D:/googleDriveFiles", storageName + "_Configuration.txt");
-        //java.io.File localFile = new java.io.File("/Users/adjenadic/googleDriveFiles", storageName + "_Configuration.txt");
+//        java.io.File localFile = new java.io.File("/Users/adjenadic/googleDriveFiles", storageName + "_Configuration.txt");
         try {
             FileWriter fileWriter = new FileWriter(localFile);
             fileWriter.write("Storage name:" + storageName + "\n");
@@ -191,7 +166,6 @@ public class ImplementationDrive implements Storage {
             throw new RuntimeException(e);
         }
 
-        // Kreiranje config file
         File readMeMetaData = new File();
         readMeMetaData.setName(storageName + "_Configuration.txt");
         readMeMetaData.setParents(Collections.singletonList(StorageArguments.driveStorage_Id));
@@ -211,7 +185,6 @@ public class ImplementationDrive implements Storage {
 
     @Override
     public boolean createDefaultStorage() {
-        //inicijalizacija
         StorageArguments.name = "DefaultStorage" + StorageArguments.counter;
         StorageArguments.path = "";
         StorageArguments.totalSpace = 250;
@@ -219,8 +192,6 @@ public class ImplementationDrive implements Storage {
         StorageArguments.restrictedExtensions = new ArrayList<>();
         StorageArguments.maxFilesInStorage = 15;
 
-
-        // Kreiranje storage
         File storageMetaData = new File();
         storageMetaData.setName(StorageArguments.name);
         storageMetaData.setMimeType("application/vnd.google-apps.folder");
@@ -236,9 +207,8 @@ public class ImplementationDrive implements Storage {
             throw new RuntimeException(e);
         }
 
-        // Kreiranje lokalnog file
         java.io.File localFile = new java.io.File("D:/googleDriveFiles", StorageArguments.name + "_CONFIGURATION.txt");
-        //java.io.File localFile = new java.io.File("/Users/adjenadic/googleDriveFiles", StorageArguments.name + "_CONFIGURATION.txt");
+//        java.io.File localFile = new java.io.File("/Users/adjenadic/googleDriveFiles", StorageArguments.name + "_CONFIGURATION.txt");
         try {
             FileWriter fileWriter = new FileWriter(localFile);
             fileWriter.write("Storage name:" + StorageArguments.name + "\n");
@@ -250,7 +220,6 @@ public class ImplementationDrive implements Storage {
             throw new RuntimeException(e);
         }
 
-        // Kreiranje config file na drajvu
         File readMeMetaData = new File();
         readMeMetaData.setName(StorageArguments.name + "_CONFIGURATION.txt");
         readMeMetaData.setParents(Collections.singletonList(StorageArguments.driveStorage_Id));
@@ -276,12 +245,11 @@ public class ImplementationDrive implements Storage {
             folderPath = "";
         }
 
-        //Provera da li postoji folder za datim imenom na zadatoj putanji
         String name = "name='" + folderName + "'";
         String nameAndMimeiType = name + " and mimeType='" + "application/vnd.google-apps.folder" + "'";
         ArrayList<File> files = (ArrayList<File>) getFilesByName("", nameAndMimeiType, service);
 
-        String parentID = getFileId(folderPath, "", service);// pitaj
+        String parentID = getFileId(folderPath, "", service);
         for (File file : files) {
             if (file.getParents().contains(parentID) && file.getName().equals(folderName)) {
                 String absoPath = StorageArguments.name + "/" + folderPath + "/" + folderName;
@@ -289,7 +257,6 @@ public class ImplementationDrive implements Storage {
             }
         }
 
-        //Kreiranje foldera
         File fileMetadata = new File();
         fileMetadata.setName(folderName);
         fileMetadata.setMimeType("application/vnd.google-apps.folder");
@@ -311,21 +278,19 @@ public class ImplementationDrive implements Storage {
             filePath = "";
         }
 
-        //Provera ekstenzije fajla
         if (StorageArguments.restrictedExtensions.contains(FilenameUtils.getExtension(fileName))) {
             throw new CustomException("Action FAILED \t Storage unsupported extensions:" + StorageArguments.restrictedExtensions);
         }
-        //Provera prekoracenja maksimalne kolicine fajlova u  skladistu
+
         if (StorageArguments.fileNumberInStorage + 1 > StorageArguments.maxFilesInStorage) {
             throw new CustomException("Action FAILED \t Storage limit max files:" + StorageArguments.maxFilesInStorage);
         }
 
-        //Provera da li postoji fajl za datim imenom na zadatoj putanji
         String name = "name='" + fileName + "'";
         String nameAndMimeiType = name + " and mimeType!='" + "application/vnd.google-apps.folder" + "'";
         ArrayList<File> files = (ArrayList<File>) getFilesByName("", nameAndMimeiType, service);
 
-        String parentID = getFileId(filePath, "application/vnd.google-apps.folder", service);//
+        String parentID = getFileId(filePath, "application/vnd.google-apps.folder", service);
         for (File value : files) {
             if (value.getParents().contains(parentID) && value.getName().equals(fileName)) {
                 String absolutePath = StorageArguments.name + "/" + filePath + "/" + fileName;
@@ -333,25 +298,22 @@ public class ImplementationDrive implements Storage {
             }
         }
 
-        //Kreiranje
         File fileMetadata = new File();
         fileMetadata.setName(fileName);
         fileMetadata.setParents(Collections.singletonList(parentID));
-        java.io.File localFile = new java.io.File("D:/googleDriveFiles/testSizeStorage.txt"); //zbog testiranja
-   //     java.io.File localFile = new java.io.File("/Users/adjenadic/googleDriveFiles/testSizeStorage.txt");
+        java.io.File localFile = new java.io.File("D:/googleDriveFiles/testSizeStorage.txt");
+//        java.io.File localFile = new java.io.File("/Users/adjenadic/googleDriveFiles/testSizeStorage.txt");
 
         FileContent fileContent = new FileContent("txt/txt", localFile);
 
         try {
             File file = service.files().create(fileMetadata, fileContent).setFields("id,name,parents,mimeType,size").execute();
 
-            //Provera prekoracenje velicine skladista
             if (StorageArguments.usedSpace + file.getSize() > StorageArguments.totalSpace) {
                 service.files().delete(file.getId()).execute();
                 throw new CustomException("Action FAILED \t Storage byte size:" + StorageArguments.totalSpace);
             }
 
-            //Storage.content.add(file.getAbsolutePath());
             StorageArguments.fileNumberInStorage += 1;
             StorageArguments.usedSpace = (int) (StorageArguments.usedSpace + file.getSize());
 
@@ -371,10 +333,7 @@ public class ImplementationDrive implements Storage {
             newFilePath = "";
         }
 
-        //Proverava da li je dobra putanja, ako jeste uzima id poslednjeg parenta
         String oldFolderParentId = getFileId(oldFilePath, "", service);
-
-        //Provera da li ono sto se premesta  je fajl
         String[] splitOldPath = oldFilePath.split("/");
         String targetName = splitOldPath[splitOldPath.length - 1];
         String name = "name='" + targetName + "'";
@@ -385,8 +344,6 @@ public class ImplementationDrive implements Storage {
             throw new CustomException("Action FAILED \t Only files can be moved");
         }
 
-
-        // Retrieve the existing parents to remove
         File file;
         try {
             file = service.files().get(oldFolderParentId)
@@ -402,11 +359,8 @@ public class ImplementationDrive implements Storage {
             previousParents.append(',');
         }
 
-        // Move the file to the new folder
         String newFolderParentId = getFileId(newFilePath, "application/vnd.google-apps.folder", service);
 
-
-        //Ako vec postoji fajl sa zadatim imenom na putanji na kojoj hocemo da premestimo
         for (File value : files) {
             if (value.getParents().contains(newFolderParentId) && value.getName().equals(targetName)) {
                 String absoPath = StorageArguments.name + "/" + newFilePath + "/" + targetName;
@@ -440,10 +394,9 @@ public class ImplementationDrive implements Storage {
             parentPath = (parentPath == null ? new StringBuilder("null") : parentPath).append("/").append(folders[i]);
         }
 
-        String fileObjectId = getFileId(foPath, "", service); // id file object koji zelimo da preimenujemo
-        String parentFileObjectId = getFileId(parentPath.toString(), "", service); // id parenta
+        String fileObjectId = getFileId(foPath, "", service);
+        String parentFileObjectId = getFileId(parentPath.toString(), "", service);
 
-        //Proverava da li postoji da li postoji fajl ili folder koji se vec tako zove
         String name = "name='" + foNewName + "'";
         ArrayList<File> files = (ArrayList<File>) getFilesByName(name, "", service);
 
@@ -502,9 +455,9 @@ public class ImplementationDrive implements Storage {
 
         String driveFolderId = getFileId(importStoragePath, "", service);
         try {
-            File driveFolder = service.files().get(driveFolderId).execute(); // folder u koji zelis da uploadas stvari
+            File driveFolder = service.files().get(driveFolderId).execute();
 
-            if (!driveFolder.getMimeType().equals("application/vnd.google-apps.folder")) { // proveravas da li je tipa folder
+            if (!driveFolder.getMimeType().equals("application/vnd.google-apps.folder")) {
                 String absolutePath = StorageArguments.name + "/" + importStoragePath;
                 throw new CustomException("Action FAILED \t" + absolutePath + " is not a directory");
             }
@@ -518,21 +471,20 @@ public class ImplementationDrive implements Storage {
                         throw new CustomException("Action FAILED \t" + importLocalPath + " \t Directory can not be upload on drive");
                     } else if (localFile.isFile()) {
                         try {
-                            //Provera ekstenzije fajla
                             if (StorageArguments.restrictedExtensions.contains(FilenameUtils.getExtension(localFile.getName()))) {
                                 throw new CustomException("Action FAILED \t Storage unsupported extensions:" + StorageArguments.restrictedExtensions);
                             }
-                            //Provera prekoracenja maksimalne kolicine fajlova u  skladistu
+
                             if (StorageArguments.fileNumberInStorage + 1 > StorageArguments.maxFilesInStorage) {
                                 throw new CustomException("Action FAILED \t Storage limit max files:" + StorageArguments.maxFilesInStorage);
                             }
+
                             File importMetaData = new File();
                             importMetaData.setName(localFile.getName());
                             importMetaData.setParents(Collections.singletonList(driveFolderId));
 
                             File file = service.files().create(importMetaData, fileContent).setFields("id,name,parents,mimeType,size").execute();
 
-                            //Provera prekoracenje velicine skladista
                             if (StorageArguments.usedSpace + file.getSize() > StorageArguments.totalSpace) {
                                 service.files().delete(file.getId()).execute();
                                 throw new CustomException("Action FAILED \t Storage byte size:" + StorageArguments.totalSpace);
@@ -602,7 +554,7 @@ public class ImplementationDrive implements Storage {
         }
 
         String folderDriveId = getFileId(folderPath, "application/vnd.google-apps.folder", service);
-        List<String> resultList = new ArrayList<>(); //lista fajlova iz tog foldera
+        List<String> resultList = new ArrayList<>();
 
         String mimeiType = "mimeType!='application/vnd.google-apps.folder'";
         ArrayList<File> files = (ArrayList<File>) getFilesByName("", mimeiType, service);
@@ -674,7 +626,7 @@ public class ImplementationDrive implements Storage {
         }
 
         String folderDriveId = getFileId(folderPath, "application/vnd.google-apps.folder", service);
-        List<String> resultList = new ArrayList<>(); //konacna lista svih fajlova
+        List<String> resultList = new ArrayList<>();
 
 
         List<String> listIdSubFolders = new ArrayList<>();
@@ -695,8 +647,8 @@ public class ImplementationDrive implements Storage {
                 break;
             }
 
-            folderDriveId = listIdSubFolders.get(0); //uzimas sledeci subfolder da prodjes kroz njega
-            listIdSubFolders.remove(folderDriveId); //brises njegov id iz liste
+            folderDriveId = listIdSubFolders.get(0);
+            listIdSubFolders.remove(folderDriveId);
         }
 
         if (typeFilter != null) {
@@ -760,7 +712,7 @@ public class ImplementationDrive implements Storage {
         }
 
         String folderDriveId = getFileId(folderPath, "application/vnd.google-apps.folder", service);
-        List<String> resultList = new ArrayList<>(); //lista fajlova iz tog foldera
+        List<String> resultList = new ArrayList<>();
 
         String mimeiType = "mimeType!='application/vnd.google-apps.folder'";
         ArrayList<File> files = (ArrayList<File>) getFilesByName("", mimeiType, service);
@@ -832,7 +784,7 @@ public class ImplementationDrive implements Storage {
         }
 
         String folderDriveId = getFileId(folderPath, "application/vnd.google-apps.folder", service);
-        List<String> resultList = new ArrayList<>(); //lista fajlova iz tog foldera
+        List<String> resultList = new ArrayList<>();
 
         String mimeiType = "mimeType!='application/vnd.google-apps.folder'";
         ArrayList<File> files = (ArrayList<File>) getFilesByName("", mimeiType, service);
@@ -935,9 +887,8 @@ public class ImplementationDrive implements Storage {
         ArrayList<File> files = (ArrayList<File>) getFilesByName("", nameAndMimeiType, service);
         String folderIdDrive;
         StringBuilder absoPath = new StringBuilder();
-        List<String> resultList = new ArrayList<>(); // pravim listu zbog bin foldera
+        List<String> resultList = new ArrayList<>();
 
-        //ako je prazan files baci da ne postoji fajl
         if (files.isEmpty()) {
             throw new CustomException("File " + "'" + fileName + "'" + "  does not exists");
         }
@@ -1074,7 +1025,6 @@ public class ImplementationDrive implements Storage {
         return resultList;
     }
 
-    /*-------------------------------------------------------------------------------------------------------------*/
     private List<File> getFilesByName(String name, String nameAndMimeiType, Drive service) {
         List<File> files;
 
@@ -1125,7 +1075,7 @@ public class ImplementationDrive implements Storage {
                 files = (ArrayList<File>) getFilesByName("", nameAndMimeiType, service);
 
             } else {
-                files = (ArrayList<File>) getFilesByName(name, "", service); //ovo vraca i fajlve i foldere sa datim imenom
+                files = (ArrayList<File>) getFilesByName(name, "", service);
             }
 
             for (File file : files) {
@@ -1166,13 +1116,11 @@ public class ImplementationDrive implements Storage {
                 break;
             }
 
-            folderDriveId = listIdSubFolders.get(0); //uzimas sledeci subfolder da prodjes kroz njega
-            listIdSubFolders.remove(folderDriveId); //brises njegov id iz liste
+            folderDriveId = listIdSubFolders.get(0);
+            listIdSubFolders.remove(folderDriveId);
         }
         return usedSpaceStorage;
     }
-
-    /*-------------------------------------------------------------------------------------------------------------*/
 
     public List<String> sortFiles(List<String> files, TypeSort typeSort) {
         List<File> driveFiles = new ArrayList<>();

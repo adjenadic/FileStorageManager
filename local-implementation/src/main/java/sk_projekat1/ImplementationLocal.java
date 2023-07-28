@@ -23,6 +23,37 @@ public class ImplementationLocal implements Storage {
         StorageManager.registerStorage(new ImplementationLocal());
     }
 
+    private static void recSearchFilesInFolders(File[] fo, int index, int level, List<String> files) {
+        if (index == fo.length) {
+            return;
+        }
+
+        if (fo[index].isFile()) {
+            files.add(fo[index].getAbsolutePath());
+        } else if (fo[index].isDirectory()) {
+            recSearchFilesInFolders(Objects.requireNonNull(fo[index].listFiles()), 0, level + 1, files);
+        }
+
+        recSearchFilesInFolders(fo, ++index, level, files);
+    }
+
+    private static String recFindFileFolder(String fileName, File[] fo, int index, int level) {
+        if (index == fo.length) {
+            return null;
+        }
+
+        if (fo[index].isFile()) {
+            if (fo[index].getName().equals(fileName)) {
+                return fo[index].getParentFile().getName();
+            }
+        } else if (fo[index].isDirectory()) {
+            recFindFileFolder(fileName, Objects.requireNonNull(fo[index].listFiles()), 0, level + 1);
+        }
+
+        recFindFileFolder(fileName, fo, ++index, level);
+        return null;
+    }
+
     @Override
     public boolean setPath(String absolutePath) {
         File storage = new File(absolutePath);
@@ -129,15 +160,15 @@ public class ImplementationLocal implements Storage {
         File dir = new File(StorageArguments.path + "/" + folderPath, folderName);
 
         if (dir.getParentFile().isFile()) {
-            throw new CustomException("Action FAILED \t " + dir.getParentFile().getAbsolutePath() + " is not a folder");
+            throw new CustomException("Action FAILED \t" + dir.getParentFile().getAbsolutePath() + " is not a folder");
         }
         if (!dir.getParentFile().exists()) {
-            throw new CustomException("Action FAILED \t Folder: " + dir.getParentFile().getAbsolutePath() + " does not exists");
+            throw new CustomException("Action FAILED \tFolder: " + dir.getParentFile().getAbsolutePath() + " does not exist");
         }
         if (!dir.exists()) {
             return dir.mkdirs();
         } else {
-            throw new CustomException("Action FAILED \t Folder: " + dir.getAbsolutePath() + " already exists");
+            throw new CustomException("Action FAILED \tFolder: " + dir.getAbsolutePath() + " already exists");
         }
     }
 
@@ -150,30 +181,30 @@ public class ImplementationLocal implements Storage {
         File file = new File(StorageArguments.path + "/" + filePath, fileName);
 
         if (file.getParentFile().isFile()) {
-            throw new CustomException("Action FAILED \t " + file.getParentFile().getAbsolutePath() + " is not a folder");
+            throw new CustomException("Action FAILED \t" + file.getParentFile().getAbsolutePath() + " is not a folder");
         }
 
         if (!file.getParentFile().exists()) {
-            throw new CustomException("Action FAILED \t Folder: " + file.getParentFile().getAbsolutePath() + " does not exists");
+            throw new CustomException("Action FAILED \tFolder: " + file.getParentFile().getAbsolutePath() + " does not exist");
         }
 
         if (!file.exists()) {
             try {
 
                 if (StorageArguments.restrictedExtensions.contains(FilenameUtils.getExtension(fileName))) {
-                    throw new CustomException("Action FAILED \t Storage unsupported extensions:" + StorageArguments.restrictedExtensions);
+                    throw new CustomException("Action FAILED \tStorage unsupported extensions:" + StorageArguments.restrictedExtensions);
                 }
 
                 FileWriter fileWriter = new FileWriter(file);
-                fileWriter.write("Ubacio sam tekst samo da bih mogao da testiram za prekoracenu velicinu u storagu");
+                fileWriter.write("Sample text");
                 fileWriter.close();
 
                 if (StorageArguments.fileNumberInStorage + 1 > StorageArguments.maxFilesInStorage) {
-                    throw new CustomException("Action FAILED \t Storage limit max files:" + StorageArguments.maxFilesInStorage);
+                    throw new CustomException("Action FAILED \tStorage limit max files:" + StorageArguments.maxFilesInStorage);
                 }
 
                 if (StorageArguments.usedSpace + file.length() > StorageArguments.totalSpace) {
-                    throw new CustomException("Action FAILED \t Storage byte size:" + StorageArguments.totalSpace);
+                    throw new CustomException("Action FAILED \tStorage byte size:" + StorageArguments.totalSpace);
                 }
 
                 StorageArguments.fileNumberInStorage += 1;
@@ -184,14 +215,14 @@ public class ImplementationLocal implements Storage {
                 throw new RuntimeException(e);
             }
         } else {
-            throw new CustomException("Action FAILED \t File:" + file.getAbsolutePath() + " already exists.");
+            throw new CustomException("Action FAILED \tFile:" + file.getAbsolutePath() + " already exists.");
         }
     }
 
     @Override
     public boolean moveFile(String oldFilePath, String movePath) {
         if (oldFilePath.equals(".")) {
-            throw new CustomException("Action FAILED \t Storage can not be moved");
+            throw new CustomException("Action FAILED \tStorage can not be moved");
         }
         if (movePath.equals(".")) {
             movePath = "";
@@ -208,11 +239,11 @@ public class ImplementationLocal implements Storage {
                 throw new RuntimeException(e);
             }
         } else if (!targetFile.exists()) {
-            throw new CustomException("Action FAILED \t File: " + targetFile.getAbsolutePath() + " does not exists");
+            throw new CustomException("Action FAILED \tFile: " + targetFile.getAbsolutePath() + " does not exist");
         } else if (!targetLocation.exists()) {
-            throw new CustomException("Action FAILED \t Target path: " + targetLocation.getAbsolutePath() + " does not exists");
+            throw new CustomException("Action FAILED \tTarget path: " + targetLocation.getAbsolutePath() + " does not exist");
         } else if (!targetLocation.isDirectory()) {
-            throw new CustomException("Action FAILED \t Target location" + targetLocation.getAbsolutePath() + " is not a folder");
+            throw new CustomException("Action FAILED \tTarget location" + targetLocation.getAbsolutePath() + " is not a folder");
         }
         return false;
     }
@@ -227,22 +258,24 @@ public class ImplementationLocal implements Storage {
             File renamedFile = new File(fo.getParentFile().getAbsolutePath(), foNewName);
             return fo.renameTo(renamedFile);
         } else {
-            throw new CustomException("Action FAILED \t " + fo.getAbsolutePath() + " does not exists");
+            throw new CustomException("Action FAILED \t" + fo.getAbsolutePath() + " does not exist");
         }
     }
 
     @Override
     public boolean deleteFileObject(String folderPath) {
         if (folderPath.equals(".")) {
-            throw new CustomException("Action FAILED \t  Storage can not be deleted");
+            throw new CustomException("Action FAILED \t Storage can not be deleted");
         }
         File fo = new File(StorageArguments.path + folderPath);
         if (fo.exists()) {
             return fo.delete();
         } else {
-            throw new CustomException("Action FAILED \t " + fo.getAbsolutePath() + " does not exists");
+            throw new CustomException("Action FAILED \t" + fo.getAbsolutePath() + " does not exist");
         }
     }
+
+    /*-----------------------------------------------------------------------------------------------------------*/
 
     @Override
     public boolean importFileObject(String[] importLocalPaths, String importStoragePath) {
@@ -253,7 +286,7 @@ public class ImplementationLocal implements Storage {
         File storageFile = new File(StorageArguments.path + importStoragePath);
 
         if (!storageFile.exists()) {
-            throw new CustomException("Action FAILED \t File: " + storageFile.getAbsolutePath() + " does not exists");
+            throw new CustomException("Action FAILED \tFile: " + storageFile.getAbsolutePath() + " does not exist");
         }
         if (!storageFile.isDirectory()) {
             throw new CustomException("Action FAILED \t" + storageFile.getAbsolutePath() + "is not a folder");
@@ -270,13 +303,13 @@ public class ImplementationLocal implements Storage {
                     } else if (localFile.isFile()) {
 
                         if (StorageArguments.fileNumberInStorage + 1 > StorageArguments.maxFilesInStorage) {
-                            throw new CustomException("Action FAILED \t Storage limit max files:" + StorageArguments.maxFilesInStorage);
+                            throw new CustomException("Action FAILED \tStorage limit max files:" + StorageArguments.maxFilesInStorage);
                         }
                         if (StorageArguments.usedSpace + localFile.length() > StorageArguments.totalSpace) {
-                            throw new CustomException("Action FAILED \t Storage byte size:" + StorageArguments.totalSpace);
+                            throw new CustomException("Action FAILED \tStorage byte size:" + StorageArguments.totalSpace);
                         }
                         if (StorageArguments.restrictedExtensions.contains(FilenameUtils.getExtension(localFile.getName()))) {
-                            throw new CustomException("Action FAILED \t Storage unsupported extensions:" + StorageArguments.restrictedExtensions);
+                            throw new CustomException("Action FAILED \tStorage unsupported extensions:" + StorageArguments.restrictedExtensions);
                         }
                         FileUtils.copyFileToDirectory(localFile, storageFile);
                         StorageArguments.fileNumberInStorage += 1;
@@ -287,7 +320,7 @@ public class ImplementationLocal implements Storage {
                     throw new RuntimeException(e);
                 }
             } else {
-                throw new CustomException("Action FAILED \t" + localFile.getAbsolutePath() + "  does not exists");
+                throw new CustomException("Action FAILED \t" + localFile.getAbsolutePath() + "  does not exist");
             }
         }
         return true;
@@ -302,13 +335,13 @@ public class ImplementationLocal implements Storage {
         File localFile = new File(exportLocalPath);
 
         if (!localFile.exists()) {
-            throw new CustomException("Action FAILED \t" + localFile.getAbsolutePath() + " does not exists");
+            throw new CustomException("Action FAILED \t" + localFile.getAbsolutePath() + " does not exist");
         }
         if (!localFile.isDirectory()) {
             throw new CustomException("Action FAILED \t" + localFile.getAbsolutePath() + " is not a folder");
         }
         if (!storageFile.exists()) {
-            throw new CustomException("Action FAILED \t" + storageFile.getAbsolutePath() + " does not exists");
+            throw new CustomException("Action FAILED \t" + storageFile.getAbsolutePath() + " does not exist");
         }
         try {
             if (storageFile.isDirectory()) {
@@ -321,8 +354,6 @@ public class ImplementationLocal implements Storage {
             throw new RuntimeException(e);
         }
     }
-
-    /*-----------------------------------------------------------------------------------------------------------*/
 
     public List<String> sortFiles(List<String> files, TypeSort typeSort) {
         switch (typeSort) {
@@ -418,37 +449,6 @@ public class ImplementationLocal implements Storage {
         }
 
         return newFiles;
-    }
-
-    private static void recSearchFilesInFolders(File[] fo, int index, int level, List<String> files) {
-        if (index == fo.length) {
-            return;
-        }
-
-        if (fo[index].isFile()) {
-            files.add(fo[index].getAbsolutePath());
-        } else if (fo[index].isDirectory()) {
-            recSearchFilesInFolders(Objects.requireNonNull(fo[index].listFiles()), 0, level + 1, files);
-        }
-
-        recSearchFilesInFolders(fo, ++index, level, files);
-    }
-
-    private static String recFindFileFolder(String fileName, File[] fo, int index, int level) {
-        if (index == fo.length) {
-            return null;
-        }
-
-        if (fo[index].isFile()) {
-            if (fo[index].getName().equals(fileName)) {
-                return fo[index].getParentFile().getName();
-            }
-        } else if (fo[index].isDirectory()) {
-            recFindFileFolder(fileName, Objects.requireNonNull(fo[index].listFiles()), 0, level + 1);
-        }
-
-        recFindFileFolder(fileName, fo, ++index, level);
-        return null;
     }
 
     /*-----------------------------------------------------------------------------------------------------------*/
